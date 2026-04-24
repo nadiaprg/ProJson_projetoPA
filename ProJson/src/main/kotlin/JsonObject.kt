@@ -1,17 +1,17 @@
 package org.example
 
 class JsonObject(
-    private val tipo: String?
-    private val propriedades: MutableMap<String, Any?>
+    private var propriedades: MutableMap<String, JsonValue?>,
+    private val tipo: String? = null
 ) : JsonValue() {
 
     // getter da variavel tipo
-    fun getType(): String {
+    fun getType(): String? {
         return tipo
     }
 
     // getter do mapa propriedades
-    fun getPropriedades(): MutableMap<String, Any?>{
+    fun getPropriedades(): MutableMap<String, JsonValue?>{
         return propriedades
     }
 
@@ -22,6 +22,7 @@ class JsonObject(
     }
 
     // altera o valor de uma propriedade
+    // tenho de transformar valor em JsonValue
     fun setProperty(propriedade: String, valor: Any){
         // TODO
         // procurar no mapa a chave
@@ -30,13 +31,18 @@ class JsonObject(
     }
 
     // adicionar propriedade(?)
-    fun addProperty(propriedade: String, valor: Any){
+    // tenho de transformar valor em JsonValue
+    fun addProperty(propriedade: String, valor: JsonValue){
         propriedades.put(propriedade, valor)
     }
 
     // eleminar propriedade(?)
     fun removeProperty(propriedade: String){
         propriedades.remove(propriedade)
+    }
+
+    override fun toString(): String {
+        TODO("Not yet implemented")
     }
 
 }
