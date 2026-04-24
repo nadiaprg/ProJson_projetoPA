@@ -1,7 +1,7 @@
 package org.example
 
 class JsonObject(
-    private val tipo: String,
+    private val tipo: String?
     private val propriedades: MutableMap<String, Any?>
 ) : JsonValue() {
 
