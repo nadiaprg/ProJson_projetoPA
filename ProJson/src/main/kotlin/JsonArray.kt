@@ -19,11 +19,6 @@ class JsonArray(
         return lista[index]
     }
 
-    //getter da lista
-    fun get(): MutableList<JsonValue?> {
-        return lista
-    }
-
     //tamanho da lista
     fun size(): Int {
         return lista.size
