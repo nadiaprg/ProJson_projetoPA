@@ -1,6 +1,9 @@
+import org.example.JsonArray
 import org.example.JsonObject
+import org.example.JsonPrimitive
 import org.example.ProJson
 import org.junit.jupiter.api.Test
+import kotlin.collections.listOf
 import kotlin.test.assertEquals
 import kotlin.test.assertNull
 
@@ -49,5 +52,40 @@ class Tests {
 
     fun alterarPropriedade(){
 
+    }
+
+
+    @Test
+    fun criarJsonArray(){
+        val list = listOf("a", null, "b")
+        val json = ProJson().toJson(list) as JsonArray
+
+        assertEquals("[\"a\",null,\"b\"]", json.toString())
+    }
+
+    @Test
+    fun addJsonArray(){
+        val list = listOf("a", null, "b")
+        val json = ProJson().toJson(list) as JsonArray
+        json.add(JsonPrimitive("c"))
+
+        assertEquals("[\"a\",null,\"b\",\"c\"]", json.toString())
+    }
+
+    @Test
+    fun removeJsonArray(){
+        val list = listOf("a", null, "b", "c")
+        val json = ProJson().toJson(list) as JsonArray
+        json.remove(2)
+
+        assertEquals("[\"a\",null,\"c\"]", json.toString())
+    }
+
+    @Test
+    fun getJsonArray(){
+        val list = listOf("a", null, "b", "c")
+        val json = ProJson().toJson(list) as JsonArray
+
+        assertEquals("\"b\"", json.get(2).toString())
     }
 }
