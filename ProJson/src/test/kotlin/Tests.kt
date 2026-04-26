@@ -54,7 +54,24 @@ class Tests {
 
     }
 
+    //Testes para o JsonPrimitive
+    @Test
+    fun stringPrimitive(){
+        assertEquals("\"a\"", JsonPrimitive("a").toString())
+    }
 
+    @Test
+    fun booleanPrimitive(){
+        assertEquals("true", JsonPrimitive(true).toString())
+    }
+
+    @Test
+    fun numeroPrimitive(){
+        assertEquals("24", JsonPrimitive(24).toString())
+    }
+
+
+    //Testes para o JsonArray
     @Test
     fun criarJsonArray(){
         val list = listOf("a", null, "b")
