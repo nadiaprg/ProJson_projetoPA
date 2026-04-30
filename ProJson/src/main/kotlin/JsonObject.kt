@@ -16,33 +16,38 @@ class JsonObject(
     }
 
     // vai buscar 1 propriedade ao mapa
-    // TODO pensar em como tirar o null
     fun getPropriedade(propriedade: String): Any? {
-        return propriedades.get(propriedade)
+        return propriedades[propriedade]
     }
 
     // altera o valor de uma propriedade
-    // tenho de transformar valor em JsonValue
-    fun setProperty(propriedade: String, valor: Any){
-        // TODO
-        // procurar no mapa a chave
-        // se existir, verificar se o tipo do valor corresponde ao tipo atual(?) ou verificar atraves de reflexao
-        // se estiver tudo bem, alterar valor
+    // caso a propriedade nao exista cria e associa o valor
+    fun setProperty(propriedade: String, valor: Any? = null){
+        // transforma o valor num JsonValue
+        val valorJson = ProJson().toJson(valor)
+        // modifica a propriedade
+        propriedades[propriedade] = valorJson
     }
 
-    // adicionar propriedade(?)
-    // tenho de transformar valor em JsonValue
-    fun addProperty(propriedade: String, valor: JsonValue){
-        propriedades.put(propriedade, valor)
+    // adicionar propriedade (não sei se vale apenas)
+    fun addProperty(propriedade: String){
+        propriedades[propriedade] = null
     }
 
-    // eleminar propriedade(?)
+    // eleminar propriedade
     fun removeProperty(propriedade: String){
         propriedades.remove(propriedade)
     }
 
     override fun toString(): String {
-        //TODO("Not yet implemented")
+        if (tipo.isNullOrEmpty())
+            return propriedades.toList().joinToString(",\n", "{\n", "\n}") {
+                "${it.component1()}: ${it.component2()}"
+            }
+
+        return "{\n\$type: \"$tipo\",\n" + propriedades.toList().joinToString(",\n", postfix = "\n}") {
+            "${it.component1()}: ${it.component2()}"
+        }
     }
 
 }

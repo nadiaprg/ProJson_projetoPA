@@ -22,36 +22,85 @@ class Tests {
     )
 
     // JsonObject
+    @Test
     fun criarJsonObject(){
         val d = Date(31, 4, 2026)
         val json = ProJson().toJson(d) as JsonObject
-        val jsonClass = json::class.toString()
+        val jsonClass = json::class.simpleName
 
-        assertEquals(" COMPLETAR ", json.toString(), "Nao esta a criar um JsonObject corretamente")
+        assertEquals("{\n\$type: \"Date\",\nday: 31,\nmonth: 4,\nyear: 2026\n}", json.toString(), "Nao esta a criar um JsonObject corretamente")
         assertEquals("JsonObject", jsonClass, "Criou uma instancia da classe $jsonClass e nao JsonObject")
+        assertEquals("Date", json.getType(), "Tipo tinha de ser Date e nao ${json.getType()}")
     }
-
+    @Test
     fun criarJsonObjectComMap(){
-        val map = mapOf("K1" to "V1", "K2" to "V2", "K3" to "V3")
+        val d = Date(31, 4, 2026)
+        val map = mapOf("K1" to "V1", "K2" to null, "K3" to d)
         val json = ProJson().toJson(map) as JsonObject
-        val jsonClass = json::class.toString()
+        val jsonClass = json::class.simpleName
 
-        assertEquals(" COMPLETAR ", json.toString(), "Nao esta a criar um JsonObject corretamente")
+        assertEquals("{\nK1: \"V1\",\nK2: null,\nK3: {\n\$type: \"Date\",\nday: 31,\nmonth: 4,\nyear: 2026\n}\n}", json.toString(), "Nao esta a criar um JsonObject corretamente")
         assertEquals("JsonObject", jsonClass, "Criou uma instancia da classe $jsonClass e nao JsonObject")
         assertNull(json.getType(), "Tipo de um Mapa tem de ser null")
     }
 
-    // TODO
-    fun adicionarPropriedade(){
+    @Test
+    fun adicionarPropriedadePrimitiva(){
+        val d = Date(31, 4, 2026)
+        val json = ProJson().toJson(d) as JsonObject
 
+        json.setProperty("jaPassou", true)
+
+        assertEquals("{\n\$type: \"Date\",\nday: 31,\nmonth: 4,\nyear: 2026,\njaPassou: true\n}", json.toString(), "Nao adicionou a propriedade corretamente")
     }
 
-    fun removerPropriedade(){
+    @Test
+    fun adicionarPropriedadeArray(){
+        val d = Date(31, 4, 2026)
+        val json = ProJson().toJson(d) as JsonObject
 
+        json.setProperty("tarefas", listOf("tarefa1", "tarefa2"))
+
+        assertEquals("{\n\$type: \"Date\",\nday: 31,\nmonth: 4,\nyear: 2026,\ntarefas: [\"tarefa1\",\"tarefa2\"]\n}", json.toString(), "Nao adicionou a propriedade corretamente")
     }
 
+    @Test
+    fun adicionarPropriedadeArrayMapa(){
+        val d = Date(31, 4, 2026)
+        val json = ProJson().toJson(d) as JsonObject
+
+        json.setProperty("alturaDoDia", mapOf("madrugada" to "00 as 6", "manha" to "6 ao 12", "tarde" to "12 as 18", "noite" to "18 a 00"))
+        assertEquals("{\n\$type: \"Date\",\nday: 31,\nmonth: 4,\nyear: 2026,\nalturaDoDia: {\nmadrugada: \"00 as 6\",\nmanha: \"6 ao 12\",\ntarde: \"12 as 18\",\nnoite: \"18 a 00\"\n}\n}", json.toString(), "Nao adicionou a propriedade corretamente")
+    }
+
+    @Test
+    fun removerPropriedadeQueExiste(){
+        val d = Date(31, 4, 2026)
+        val json = ProJson().toJson(d) as JsonObject
+
+        json.removeProperty("day")
+
+        assertEquals("{\n\$type: \"Date\",\nmonth: 4,\nyear: 2026\n}", json.toString(), "Nao removeu a propriedade")
+    }
+
+    @Test
+    fun removerPropriedadeQueNaoExiste(){
+        val d = Date(31, 4, 2026)
+        val json = ProJson().toJson(d) as JsonObject
+
+        json.removeProperty("jaPassou")
+
+        assertEquals("{\n\$type: \"Date\",\nday: 31,\nmonth: 4,\nyear: 2026\n}", json.toString(), "Nao conseguiu lidar com um user tentar remover uma propriedade que nao existe")
+    }
+
+    @Test
     fun alterarPropriedade(){
+        val d = Date(31, 4, 2026)
+        val json = ProJson().toJson(d) as JsonObject
 
+        json.setProperty("month", 8)
+
+        assertEquals("{\n\$type: \"Date\",\nday: 31,\nmonth: 8,\nyear: 2026\n}", json.toString(), "Nao conseguiu alterar a propriedade")
     }
 
     //Testes para o JsonPrimitive

@@ -15,7 +15,7 @@ class ProJson {
             }
 
             is Map<*, *> -> {
-                val jo = createJsonObject(objeto)
+                val jo = createJsonObjectMap(objeto)
                 JsonObject( jo)
             }
 
@@ -25,10 +25,7 @@ class ProJson {
                 val jo = createJsonObject(objeto)
                 JsonObject(jo, clazz.simpleName)
             }
-        } as JsonValue
-        //TODO
-        // atraves de reflection temos de verificar a classe do objeto
-        // e chamar JsonObject e JsonArray respetivamente
+        }
     }
 
     private fun createJsonArray(objeto: Collection<*>): MutableList<JsonValue?> {
@@ -42,22 +39,33 @@ class ProJson {
     private fun createJsonObject(objeto: Any): MutableMap<String, JsonValue?> {
         var mapa = mutableMapOf<String, JsonValue?>()
         val clazz = objeto::class
-        clazz.primaryConstructor?.parameters?.forEach {
-            val property_name = it.name
 
-            if (property_name != null) {
-                // Procuramos a propriedade correspondente para extrair o valor
-                val property = clazz.memberProperties.find { it.name == property_name }
-                val valorOriginal = property?.call(objeto)
+            clazz.primaryConstructor?.parameters?.forEach {
+                val property_name = it.name
 
-                // Chamada recursiva para converter em JsonValue
-                mapa[property_name] = toJson(valorOriginal)
+                if (property_name != null) {
+                    // Procuramos a propriedade correspondente para extrair o valor
+                    val property = clazz.memberProperties.find { it.name == property_name }
+                    val valorOriginal = property?.call(objeto)
+
+                    // Chamada recursiva para converter em JsonValue
+                    mapa[property_name] = toJson(valorOriginal)
+                }
             }
-        }
+
         return mapa
     }
 
+    private fun createJsonObjectMap(objeto: Any): MutableMap<String, JsonValue?> {
+        var mapa = mutableMapOf<String, JsonValue?>()
+        val listaMapa = (objeto as Map<*,*>).toList()
 
+        listaMapa.forEach {
+            mapa[it.component1().toString()] = toJson(it.component2())
+        }
+
+        return mapa
+    }
 
 
 }
