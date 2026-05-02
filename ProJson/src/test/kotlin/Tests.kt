@@ -1,6 +1,7 @@
 import org.example.JsonArray
 import org.example.JsonObject
 import org.example.JsonPrimitive
+import org.example.JsonProperty
 import org.example.ProJson
 import org.junit.jupiter.api.Test
 import kotlin.collections.listOf
@@ -18,6 +19,15 @@ class Tests {
     data class Date(
         val day: Int,
         val month: Int,
+        val year: Int
+    )
+
+    data class DateAnotacoes(
+        @JsonProperty("dia")
+        val day: Int,
+        @JsonProperty("mes")
+        val month: Int,
+        @JsonProperty("ano")
         val year: Int
     )
 
@@ -153,5 +163,41 @@ class Tests {
         val json = ProJson().toJson(list) as JsonArray
 
         assertEquals("\"b\"", json.get(2).toString())
+    }
+
+    // Testes da anotacao JsonProperty
+    @Test
+    fun criarJsonObjectJsonProperty(){
+        val d = DateAnotacoes(31, 4, 2026)
+        val json = ProJson().toJson(d) as JsonObject
+        val jsonClass = json::class.simpleName
+
+        assertEquals("{\n\$type: \"DateAnotacoes\",\ndia: 31,\nmes: 4,\nano: 2026\n}", json.toString(), "Nao esta a criar um JsonObject corretamente")
+        assertEquals("JsonObject", jsonClass, "Criou uma instancia da classe $jsonClass e nao JsonObject")
+        assertEquals("DateAnotacoes", json.getType(), "Tipo tinha de ser Date e nao ${json.getType()}")
+    }
+
+    @Test
+    fun alterarPropriedadeJsonProperty(){
+        val d = DateAnotacoes(31, 4, 2026)
+        val json = ProJson().toJson(d) as JsonObject
+
+        json.setProperty("mes", 8)
+
+        assertEquals("{\n\$type: \"DateAnotacoes\",\ndia: 31,\nmes: 8,\nano: 2026\n}", json.toString(), "Nao conseguiu alterar a propriedade")
+    }
+
+    @Test
+    fun adicionarPropriedadeArrayJsonProperty() {
+        val d = DateAnotacoes(31, 4, 2026)
+        val json = ProJson().toJson(d) as JsonObject
+
+        json.setProperty("datas", listOf(DateAnotacoes(1, 5, 2026), Date(2, 5, 2026)))
+
+        assertEquals(
+            "{\n\$type: \"DateAnotacoes\",\ndia: 31,\nmes: 4,\nano: 2026,\ndatas: [{\n\$type: \"DateAnotacoes\",\ndia: 1,\nmes: 5,\nano: 2026\n},{\n\$type: \"Date\",\nday: 2,\nmonth: 5,\nyear: 2026\n}]\n}",
+            json.toString(),
+            "Nao adicionou a propriedade corretamente"
+        )
     }
 }

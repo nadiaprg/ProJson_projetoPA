@@ -1,6 +1,8 @@
 package org.example
 
 import kotlin.reflect.KClass
+import kotlin.reflect.full.findAnnotation
+import kotlin.reflect.full.hasAnnotation
 import kotlin.reflect.full.memberProperties
 import kotlin.reflect.full.primaryConstructor
 
@@ -41,12 +43,19 @@ class ProJson {
         val clazz = objeto::class
 
             clazz.primaryConstructor?.parameters?.forEach {
-                val property_name = it.name
+                var property_name = it.name
 
                 if (property_name != null) {
                     // Procuramos a propriedade correspondente para extrair o valor
                     val property = clazz.memberProperties.find { it.name == property_name }
+
                     val valorOriginal = property?.call(objeto)
+
+                    // verifica se a propriedade tem a anotacao JsonProperty
+                    if (property?.hasAnnotation<JsonProperty>() == true){
+                        // se tiver, o nome da propriedade vai ser o nome dado na anotacao
+                        property_name = property.findAnnotation<JsonProperty>()?.name ?: ""
+                    }
 
                     // Chamada recursiva para converter em JsonValue
                     mapa[property_name] = toJson(valorOriginal)
