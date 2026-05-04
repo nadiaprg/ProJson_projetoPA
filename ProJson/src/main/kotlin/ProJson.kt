@@ -49,6 +49,9 @@ class ProJson {
                     // Procuramos a propriedade correspondente para extrair o valor
                     val property = clazz.memberProperties.find { it.name == property_name }
 
+                    // verifica se a propriedade tem a anotação JsonIgnore
+                    if (property?.hasAnnotation<JsonIgnore>() == true) return@forEach
+
                     val valorOriginal = property?.call(objeto)
 
                     // verifica se a propriedade tem a anotacao JsonProperty

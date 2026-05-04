@@ -2,6 +2,7 @@ import org.example.JsonArray
 import org.example.JsonObject
 import org.example.JsonPrimitive
 import org.example.JsonProperty
+import org.example.JsonIgnore
 import org.example.ProJson
 import org.junit.jupiter.api.Test
 import kotlin.collections.listOf
@@ -29,6 +30,15 @@ class Tests {
         val month: Int,
         @JsonProperty("ano")
         val year: Int
+    )
+
+    class TaskAnotacoes(
+        @JsonProperty("desc")
+        val description: String,
+        @JsonIgnore
+        val deadline: Date?,
+        @JsonProperty("deps")
+        val dependencies: List<Task>
     )
 
     // JsonObject
@@ -198,6 +208,18 @@ class Tests {
             "{\n\$type: \"DateAnotacoes\",\ndia: 31,\nmes: 4,\nano: 2026,\ndatas: [{\n\$type: \"DateAnotacoes\",\ndia: 1,\nmes: 5,\nano: 2026\n},{\n\$type: \"Date\",\nday: 2,\nmonth: 5,\nyear: 2026\n}]\n}",
             json.toString(),
             "Nao adicionou a propriedade corretamente"
+        )
+    }
+
+    //Testes da anotação JsonIgnore
+    @Test
+    fun testarJsonIgnore() {
+        val t = TaskAnotacoes("T1", Date(30,2,2026), emptyList())
+        val json = ProJson().toJson(t) as JsonObject
+
+        assertEquals(
+            "{\n\$type: \"TaskAnotacoes\",\ndesc: \"T1\",\ndeps: []\n}",
+            json.toString()
         )
     }
 }
