@@ -9,9 +9,18 @@ package org.example
  * @property lista é a lista mutável interna que armazena os elementos do array
  */
 
-class JsonArray(
+data class JsonArray(
     private var lista: MutableList<JsonValue?>
 ) : JsonValue() {
+
+    /**
+     * Retorna a variável lista
+     *
+     * @return a lista associado à variável lista
+     */
+    fun getList(): MutableList<JsonValue?> {
+        return lista
+    }
 
     /**
      * Adiciona um novo elemento [JsonValue] ao final do array

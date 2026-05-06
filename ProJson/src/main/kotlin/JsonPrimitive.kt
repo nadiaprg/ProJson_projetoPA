@@ -10,9 +10,13 @@ import kotlin.reflect.KClass
  * Garante, na inicialização, que apenas tipos compativeis com a especificação Json sejam armazenados
  */
 
-class JsonPrimitive(
+data class JsonPrimitive(
     private var valor: Any?
 ) : JsonValue() {
+
+    fun getValue(): Any?{
+        return valor
+    }
 
     /**
      * Valida se o [valor] fornecido é compativél com os tipos de Json primitivos

@@ -11,9 +11,10 @@ package org.example
  * @property propriedades é o mapa mutável interno que guarda os valores da classe
  * @property tipo é a variável que guarda o nome da classe original do objeto
  */
-class JsonObject(
+data class JsonObject(
     private var propriedades: MutableMap<String, JsonValue?>,
-    private val tipo: String? = null
+    private val tipo: String? = null,
+    private val id: String? = null
 ) : JsonValue() {
 
     /**
@@ -32,6 +33,15 @@ class JsonObject(
      */
     fun getPropriedades(): MutableMap<String, JsonValue?>{
         return propriedades
+    }
+
+    /**
+     * Retorna o valor da variável id
+     *
+     * @return a String correspondente ao valor da variável id, sendo que pode ser null
+     */
+    fun getID(): String?{
+        return id
     }
 
     /**

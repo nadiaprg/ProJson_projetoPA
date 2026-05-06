@@ -3,8 +3,13 @@ import org.example.JsonObject
 import org.example.JsonPrimitive
 import org.example.JsonProperty
 import org.example.JsonIgnore
+import org.example.JsonValue
 import org.example.ProJson
+import org.example.Reference
+import org.junit.jupiter.api.Assertions.assertNotNull
+import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
+import java.util.Collections.emptyList
 import kotlin.collections.listOf
 import kotlin.test.assertEquals
 import kotlin.test.assertNull
@@ -37,8 +42,8 @@ class Tests {
         val description: String,
         @JsonIgnore
         val deadline: Date?,
-        @JsonProperty("deps")
-        val dependencies: List<Task>
+        @Reference
+        val dependencies: List<TaskAnotacoes>
     )
 
     // JsonObject
@@ -217,9 +222,47 @@ class Tests {
         val t = TaskAnotacoes("T1", Date(30,2,2026), emptyList())
         val json = ProJson().toJson(t) as JsonObject
 
-        assertEquals(
-            "{\n\$type: \"TaskAnotacoes\",\ndesc: \"T1\",\ndeps: []\n}",
-            json.toString()
+        val esperado = JsonObject(
+            mapOf(
+                "deps" to JsonArray(emptyList()),
+                "desc" to JsonPrimitive("T1")
+            ) as MutableMap<String, JsonValue?>,
+
+            "TaskAnotacoes", // Tipo da classe principal
         )
+
+        assertEquals(
+            esperado,
+            json
+        )
+    }
+
+    // Testes da anotacao Reference
+    @Test
+    fun testarReferenceComObjetosJaCriados() {
+        val t1 = TaskAnotacoes("T1"
+            , Date(30,2,2026), emptyList())
+        val t2 = TaskAnotacoes("T2"
+            , Date(31,4,2026), emptyList())
+        val t3 = TaskAnotacoes("T3"
+            , Date(30,2,2026), listOf(t1, t2))
+
+        val json = ProJson().toJson(t3) as JsonObject
+
+        // Verifica se criou o ID da task 3
+        assertNotNull(json.getID(), "O objeto principal deve ter um ID")
+        assertTrue(json.getID()?.length == 36, "O ID deve ter tamanho 36 e nao ${json.getID()?.length}")
+
+        // Verifica se criou corretamente a lista de dependencias
+        val deps = json.getPropriedades()["dependencies"] as JsonArray
+        assertEquals(2, deps.getList().size, "A lista de dependências deve ter 2 elementos")
+
+        // Verifica se as referências na lista não são nulas e têm o formato certo
+        deps.getList().forEach { ref ->
+            assertNotNull(ref, "A referência não pode ser nula")
+            val refId = (ref as JsonPrimitive).getValue() as String
+            assertTrue(refId.length == 36, "O ID deve ter tamanho 36 e nao ${refId.length}")
+        }
+
     }
 }
