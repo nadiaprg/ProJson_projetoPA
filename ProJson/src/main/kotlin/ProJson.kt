@@ -3,6 +3,8 @@ package org.example
 import kotlin.reflect.full.findAnnotation
 import kotlin.reflect.full.hasAnnotation
 import kotlin.reflect.full.memberProperties
+import kotlin.reflect.full.createInstance
+import java.util.UUID;
 
 
 class ProJson {
@@ -26,12 +28,21 @@ class ProJson {
             else -> {
                 val clazz = objet::class
 
+                // verifica se a classe tem a anotacao JsonString
                 if (clazz.hasAnnotation<JsonString>()){
-                    val instance = clazz.findAnnotation<JsonString>()?.clazz
+                    // se a classe de serializacao existir, cria uma instancia da mesma
+                    val plugin = clazz.findAnnotation<JsonString>()?.plugin?.createInstance()
+
+                    if (plugin != null){
+                        val objString = (plugin as JsonPlugin).transform(objet)
+
+                        return JsonPrimitive(objString)
+                    }
+
                 }
                 val jo = createJsonObject(objet)
 
-                if (hasReference(objet)){
+                if (!clazz.isData){
                     val id = createID()
                     IDs[objet] = id
                     JsonObject(jo, clazz.simpleName, id)
@@ -92,18 +103,6 @@ class ProJson {
         return mapa
     }
 
-    // verifica se a classe do objeto tem a anotacao Reference
-    private fun hasReference(objet: Any): Boolean{
-        val clazz = objet::class
-
-        clazz.memberProperties.forEach {
-            if (it.hasAnnotation<Reference>())
-                return true
-        }
-
-        return false
-    }
-
     // cria a lista com as referencias
     // caso os objetos ainda nao tenham sido criado, ele cria primeiro
     private fun createReferences(list: Collection<Any>): List<String>{
@@ -119,27 +118,11 @@ class ProJson {
 
     // cria UUID de um JsonObject
     private fun createID(): String{
-        var id = ""
-        while (IDs.containsValue(id) || id == ""){
-            id = randomSequence(8) + "-" +
-                    randomSequence(4) + "-" +
-                    randomSequence(4) + "-" +
-                    randomSequence(4) + "-" +
-                    randomSequence(12)
+        var id = UUID.randomUUID().toString()
+        while (IDs.containsValue(id)){
+            id = UUID.randomUUID().toString()
         }
         return id
-    }
-
-    // cria sequencia de chars
-    private fun randomSequence(length: Int): String {
-        val chars = ('a'..'z') + ('0'..'9')
-        val lista = mutableListOf<Char>()
-
-        for (i in (1..length)){
-            lista.add(chars.random())
-        }
-
-        return lista.joinToString("")
     }
 
 }

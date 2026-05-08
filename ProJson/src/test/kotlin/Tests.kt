@@ -3,6 +3,8 @@ import org.example.JsonObject
 import org.example.JsonPrimitive
 import org.example.JsonProperty
 import org.example.JsonIgnore
+import org.example.JsonPlugin
+import org.example.JsonString
 import org.example.JsonValue
 import org.example.ProJson
 import org.example.Reference
@@ -37,6 +39,13 @@ class Tests {
         val year: Int
     )
 
+    @JsonString(DateAsText::class)
+    data class DateJsonString(
+        val day: Int,
+        val month: Int,
+        val year: Int
+    )
+
     class TaskAnotacoes(
         @JsonProperty("desc")
         val description: String,
@@ -45,6 +54,21 @@ class Tests {
         @Reference
         val dependencies: List<TaskAnotacoes>
     )
+
+    class DateAsText : JsonPlugin {
+        override fun transform(obj: Any): String {
+            // 1. Verificação de segurança: garante que o objeto é uma Date
+            // (No teu projeto terás de importar a classe Date correta)
+            if (obj !is DateJsonString) return obj.toString()
+
+            // 2. Formatação da String (ex: adiciona zeros à esquerda para o dia/mês)
+            val diaFormatado = obj.day.toString().padStart(2, '0')
+            val mesFormatado = obj.month.toString().padStart(2, '0')
+
+            // 3. Devolve exatamente o formato pedido na imagem: "30/02/2026"
+            return "$diaFormatado/$mesFormatado/${obj.year}"
+        }
+    }
 
     // JsonObject
     @Test
@@ -264,5 +288,15 @@ class Tests {
             assertTrue(refId.length == 36, "O ID deve ter tamanho 36 e nao ${refId.length}")
         }
 
+    }
+
+    // Testes da anotacao JsonString
+
+    @Test
+    fun testeJsonString(){
+        val d = DateJsonString(31, 4, 2026)
+        val json = ProJson().toJson(d) as JsonPrimitive
+
+        assertEquals("\"31/04/2026\"", json.toString(), "não criou corretamente a string, ${json.toString()}")
     }
 }
