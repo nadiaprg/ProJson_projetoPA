@@ -12,7 +12,7 @@ package org.example
  * @property tipo é a variável que guarda o nome da classe original do objeto
  */
 data class JsonObject(
-    private var propriedades: MutableMap<String, JsonValue?>,
+    private var propriedades: MutableMap<String, JsonValue>,
     private val tipo: String? = null,
     private val id: String? = null
 ) : JsonValue() {
@@ -31,7 +31,7 @@ data class JsonObject(
      *
      * @return o mapa associado à variável propriedades
      */
-    fun getPropriedades(): MutableMap<String, JsonValue?>{
+    fun getPropriedades(): MutableMap<String, JsonValue>{
         return propriedades
     }
 
@@ -89,7 +89,10 @@ data class JsonObject(
             return propriedades.toList().joinToString(",\n", "{\n", "\n}") {
                 "${it.component1()}: ${it.component2()}"
             }
-
+        else if (id.isNullOrEmpty())
+            return "{\n\$id: \"$id\",\n\$type: \"$tipo\",\n" + propriedades.toList().joinToString(",\n", postfix = "\n}") {
+                "${it.component1()}: ${it.component2()}"
+            }
         return "{\n\$type: \"$tipo\",\n" + propriedades.toList().joinToString(",\n", postfix = "\n}") {
             "${it.component1()}: ${it.component2()}"
         }

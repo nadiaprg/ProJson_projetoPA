@@ -100,12 +100,12 @@ class ProJson {
      * @param objeto instancia do objeto cujas propriedades vão ser iteradas
      * @return [MutableMap] cuja chave é uma [String] do nome da propriedade e o valor é o seu [JsonValue] serializado
      */
-    private fun createJsonObject(objeto: Any): MutableMap<String, JsonValue?> {
-        var mapa = mutableMapOf<String, JsonValue?>()
+    private fun createJsonObject(objeto: Any): MutableMap<String, JsonValue> {
+        var mapa = mutableMapOf<String, JsonValue>()
         val clazz = objeto::class
 
         // Percorremos cada propriedade da classe
-        val property = clazz.memberProperties.forEach {
+        clazz.memberProperties.forEach {
             // verifica se a propriedade tem a anotação JsonIgnore
             if (it.hasAnnotation<JsonIgnore>()) return@forEach
 
@@ -135,9 +135,9 @@ class ProJson {
      * @param objeto mapa original
      * @return [MutableMap] com chaves [String] e valores [JsonValue]
      */
-    private fun createJsonObjectMap(objeto: Any): MutableMap<String, JsonValue?> {
-        var mapa = mutableMapOf<String, JsonValue?>()
-        val listaMapa = (objeto as Map<*,*>).toList()
+    private fun createJsonObjectMap(objeto: Map<*, *>): MutableMap<String, JsonValue> {
+        var mapa = mutableMapOf<String, JsonValue>()
+        val listaMapa = objeto.toList()
 
         listaMapa.forEach {
             mapa[it.component1().toString()] = toJson(it.component2())
@@ -151,15 +151,22 @@ class ProJson {
      * recupera o identificador existente
      *
      * @param list coleção de objetos referencia a processar
-     * @return uma lista de [String] com os UUIDs correspondentes aos objetos
+     * @return uma lista de [String] com [MutableMap] com os UUIDs correspondentes aos objetos, onde as chaves e valores [String]
      */
-    private fun createReferences(list: Collection<Any>): List<String>{
-        val listIDs = mutableListOf<String>()
+    private fun createReferences(list: Collection<Any>): List<Map<String, String>>{
+        val listIDs = mutableListOf<Map<String, String>>()
         list.forEach {
+            // verifica se o objeto ja tinha sido criado
             if (!IDs.containsKey(it)){
+                // se nao, cria o objeto
                 toJson(it)
             }
-            listIDs.add(IDs.getValue(it))
+
+            // vai buscar o id
+            val id = IDs.getValue(it)
+
+            // faz da referencia um mapa para
+            listIDs.add(mapOf("\$ref" to id))
         }
         return listIDs
     }
@@ -175,6 +182,16 @@ class ProJson {
             id = UUID.randomUUID().toString()
         }
         return id
+    }
+
+    /**
+     * Devolve o objeto associado ao id dado
+     *
+     * @return o objeto; se o id não existir, devolve null
+     */
+    fun getObject(id: String): Any? {
+        //return IDs.filter { key -> IDs[key] == id }.keys
+        return IDs.entries.find { it.value == id }?.key
     }
 
 }

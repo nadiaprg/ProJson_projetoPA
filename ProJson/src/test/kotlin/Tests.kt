@@ -250,7 +250,7 @@ class Tests {
             mapOf(
                 "deps" to JsonArray(emptyList()),
                 "desc" to JsonPrimitive("T1")
-            ) as MutableMap<String, JsonValue?>,
+            ) as MutableMap<String, JsonValue>,
 
             "TaskAnotacoes", // Tipo da classe principal
         )
@@ -263,7 +263,7 @@ class Tests {
 
     // Testes da anotacao Reference
     @Test
-    fun testarReferenceComObjetosJaCriados() {
+    fun testarReferenceComObjetosPorCriar() {
         val t1 = TaskAnotacoes("T1"
             , Date(30,2,2026), emptyList())
         val t2 = TaskAnotacoes("T2"
@@ -271,7 +271,11 @@ class Tests {
         val t3 = TaskAnotacoes("T3"
             , Date(30,2,2026), listOf(t1, t2))
 
-        val json = ProJson().toJson(t3) as JsonObject
+        val motor = ProJson()
+
+        val json = motor.toJson(t3) as JsonObject
+
+        print("ID: " + json.getID())
 
         // Verifica se criou o ID da task 3
         assertNotNull(json.getID(), "O objeto principal deve ter um ID")
@@ -283,9 +287,74 @@ class Tests {
 
         // Verifica se as referências na lista não são nulas e têm o formato certo
         deps.getList().forEach { ref ->
-            assertNotNull(ref, "A referência não pode ser nula")
-            val refId = (ref as JsonPrimitive).getValue() as String
+            val refObj = ref as JsonObject
+
+            val refPrimitive = refObj.getPropriedade("\$ref") as JsonPrimitive
+            assertNotNull(refPrimitive, "A referência não pode ser nula")
+
+            val refId = refPrimitive.getValue() as String
             assertTrue(refId.length == 36, "O ID deve ter tamanho 36 e nao ${refId.length}")
+
+            val task = motor.getObject(refId) as TaskAnotacoes
+
+            print("\nTarefa associada ao id: $refId -> ${task.description}")
+
+            assertNotNull(task, "Não existe uma task associada à referencia")
+        }
+
+    }
+
+    @Test
+    fun testarReferenceComObjetosJaCriados() {
+        val motor = ProJson()
+
+        val t1 = TaskAnotacoes("T1"
+            , Date(30,2,2026), emptyList())
+
+        val json_t1 = motor.toJson(t1) as JsonObject
+        val id_t1 = json_t1.getID()
+
+        val t2 = TaskAnotacoes("T2"
+            , Date(31,4,2026), emptyList())
+
+        val json_t2 = motor.toJson(t2) as JsonObject
+        val id_t2 = json_t2.getID()
+
+        val t3 = TaskAnotacoes("T3"
+            , Date(30,2,2026), listOf(t1, t2))
+
+        val json_t3 = motor.toJson(t3) as JsonObject
+        val id_t3 = json_t3.getID()
+
+        print("ID T1: $id_t1")
+        print("\nID T2: $id_t2")
+        print("\nnID T3: $id_t3")
+
+        // Verifica se criou o ID da task 3
+        assertNotNull(id_t3, "O objeto principal deve ter um ID")
+        assertTrue(id_t3?.length == 36, "O ID deve ter tamanho 36 e nao ${id_t3?.length}")
+
+        // Verifica se criou corretamente a lista de dependencias
+        val deps = json_t3.getPropriedades()["dependencies"] as JsonArray
+        assertEquals(2, deps.getList().size, "A lista de dependências deve ter 2 elementos")
+
+        // Verifica se as referências na lista não são nulas e têm o formato certo
+        deps.getList().forEach { ref ->
+            val refObj = ref as JsonObject
+
+            val refPrimitive = refObj.getPropriedade("\$ref") as JsonPrimitive
+            assertNotNull(refPrimitive, "A referência não pode ser nula")
+
+            val refId = refPrimitive.getValue() as String
+            assertTrue(refId.length == 36, "O ID deve ter tamanho 36 e nao ${refId.length}")
+
+            assertTrue(refId == id_t1 || refId == id_t2, "O id da tarefa esta errado")
+
+            val task = motor.getObject(refId) as TaskAnotacoes
+
+            print("\nTarefa associada ao id: $refId -> ${task.description}")
+
+            assertNotNull(task, "Não existe uma task associada à referencia")
         }
 
     }
