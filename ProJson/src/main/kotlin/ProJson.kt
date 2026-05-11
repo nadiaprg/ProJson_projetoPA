@@ -80,12 +80,12 @@ class ProJson {
     /**
      * Converte uma coleção numa lista de instâncias [JsonValue]
      *
-     * @param objeto coleção a ser iterada
+     * @param objet coleção a ser iterada
      * @return [MutableList] de [JsonValue] resultante da conversão de cada elemento
      */
-    private fun createJsonArray(objeto: Collection<*>): MutableList<JsonValue?> {
+    private fun createJsonArray(objet: Collection<*>): MutableList<JsonValue?> {
         var array = mutableListOf<JsonValue?>()
-        objeto.forEach {
+        objet.forEach {
             o -> array.add(toJson(o))
         }
         return array
@@ -97,22 +97,22 @@ class ProJson {
      * Processa dinamicamente as anotações [JsonIgnore] para omitir propriedades, [Reference] para lidar
      * com dependências e [JsonProperty] para costumizar os nomes das chaves
      *
-     * @param objeto instancia do objeto cujas propriedades vão ser iteradas
+     * @param objet instancia do objeto cujas propriedades vão ser iteradas
      * @return [MutableMap] cuja chave é uma [String] do nome da propriedade e o valor é o seu [JsonValue] serializado
      */
-    private fun createJsonObject(objeto: Any): MutableMap<String, JsonValue> {
-        var mapa = mutableMapOf<String, JsonValue>()
-        val clazz = objeto::class
+    private fun createJsonObject(objet: Any): MutableMap<String, JsonValue> {
+        var map = mutableMapOf<String, JsonValue>()
+        val clazz = objet::class
 
         // Percorremos cada propriedade da classe
         clazz.memberProperties.forEach {
             // verifica se a propriedade tem a anotação JsonIgnore
             if (it.hasAnnotation<JsonIgnore>()) return@forEach
 
-            var valorOriginal = it.call(objeto)
+            var originalValue = it.call(objet)
 
             if (it.hasAnnotation<Reference>()){
-                valorOriginal = createReferences(valorOriginal as Collection<Any>)
+                originalValue = createReferences(originalValue as Collection<Any>)
             }
 
             // verifica se a propriedade tem a anotacao JsonProperty
@@ -120,30 +120,30 @@ class ProJson {
                 // se tiver, o nome da propriedade vai ser o nome dado na anotacao
                 val name = it.findAnnotation<JsonProperty>()?.name ?: ""
                 // Chamada recursiva para converter em JsonValue
-                mapa[name] = toJson(valorOriginal)
+                map[name] = toJson(originalValue)
             }
             else{
                 // Chamada recursiva para converter em JsonValue
-                mapa[it.name] = toJson(valorOriginal)
+                map[it.name] = toJson(originalValue)
             }
         }
-        return mapa
+        return map
     }
 
     /**
      * Converte um [Map] num mapa de propriedades compativel com [JsonObject]
-     * @param objeto mapa original
+     * @param objet mapa original
      * @return [MutableMap] com chaves [String] e valores [JsonValue]
      */
-    private fun createJsonObjectMap(objeto: Map<*, *>): MutableMap<String, JsonValue> {
-        var mapa = mutableMapOf<String, JsonValue>()
-        val listaMapa = objeto.toList()
+    private fun createJsonObjectMap(objet: Map<*, *>): MutableMap<String, JsonValue> {
+        var map = mutableMapOf<String, JsonValue>()
+        val mapList = objet.toList()
 
-        listaMapa.forEach {
-            mapa[it.component1().toString()] = toJson(it.component2())
+        mapList.forEach {
+            map[it.component1().toString()] = toJson(it.component2())
         }
 
-        return mapa
+        return map
     }
 
     /**

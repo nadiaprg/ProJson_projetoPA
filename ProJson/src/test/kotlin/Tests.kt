@@ -282,14 +282,14 @@ class Tests {
         assertTrue(json.getID()?.length == 36, "O ID deve ter tamanho 36 e nao ${json.getID()?.length}")
 
         // Verifica se criou corretamente a lista de dependencias
-        val deps = json.getPropriedades()["dependencies"] as JsonArray
+        val deps = json.getProperties()["dependencies"] as JsonArray
         assertEquals(2, deps.getList().size, "A lista de dependências deve ter 2 elementos")
 
         // Verifica se as referências na lista não são nulas e têm o formato certo
         deps.getList().forEach { ref ->
             val refObj = ref as JsonObject
 
-            val refPrimitive = refObj.getPropriedade("\$ref") as JsonPrimitive
+            val refPrimitive = refObj.getProperty("\$ref") as JsonPrimitive
             assertNotNull(refPrimitive, "A referência não pode ser nula")
 
             val refId = refPrimitive.getValue() as String
@@ -335,14 +335,14 @@ class Tests {
         assertTrue(id_t3?.length == 36, "O ID deve ter tamanho 36 e nao ${id_t3?.length}")
 
         // Verifica se criou corretamente a lista de dependencias
-        val deps = json_t3.getPropriedades()["dependencies"] as JsonArray
+        val deps = json_t3.getProperties()["dependencies"] as JsonArray
         assertEquals(2, deps.getList().size, "A lista de dependências deve ter 2 elementos")
 
         // Verifica se as referências na lista não são nulas e têm o formato certo
         deps.getList().forEach { ref ->
             val refObj = ref as JsonObject
 
-            val refPrimitive = refObj.getPropriedade("\$ref") as JsonPrimitive
+            val refPrimitive = refObj.getProperty("\$ref") as JsonPrimitive
             assertNotNull(refPrimitive, "A referência não pode ser nula")
 
             val refId = refPrimitive.getValue() as String

@@ -8,12 +8,12 @@ package org.example
  *
  * Extende a classe abstrata [JsonValue]
  *
- * @property propriedades é o mapa mutável interno que guarda os valores da classe
- * @property tipo é a variável que guarda o nome da classe original do objeto
+ * @property properties é o mapa mutável interno que guarda os valores da classe
+ * @property type é a variável que guarda o nome da classe original do objeto
  */
 data class JsonObject(
-    private var propriedades: MutableMap<String, JsonValue>,
-    private val tipo: String? = null,
+    private var properties: MutableMap<String, JsonValue>,
+    private val type: String? = null,
     private val id: String? = null
 ) : JsonValue() {
 
@@ -23,7 +23,7 @@ data class JsonObject(
      * @return a String correspondente ao valor da variável tipo, sendo que pode ser null
      */
     fun getType(): String? {
-        return tipo
+        return type
     }
 
     /**
@@ -31,8 +31,8 @@ data class JsonObject(
      *
      * @return o mapa associado à variável propriedades
      */
-    fun getPropriedades(): MutableMap<String, JsonValue>{
-        return propriedades
+    fun getProperties(): MutableMap<String, JsonValue>{
+        return properties
     }
 
     /**
@@ -47,11 +47,11 @@ data class JsonObject(
     /**
      * Retorna o valor associado a uma chave
      *
-     * @param propriedade é a string correspondente à chave do valor a devolver
+     * @param property é a string correspondente à chave do valor a devolver
      * @return o [JsonValue] correspondente à chave ou null se o elemento for nulo
      */
-    fun getPropriedade(propriedade: String): Any? {
-        return propriedades[propriedade]
+    fun getProperty(property: String): Any? {
+        return properties[property]
     }
 
     /**
@@ -60,23 +60,23 @@ data class JsonObject(
      * Se a propriedade já existir, atualiza o valor da mesma
      * Se a propriedade não exitir, cria a mesma e associa o valor dado
      *
-     * @param propriedade é a string correspondente à chave
+     * @param property é a string correspondente à chave
      * @param valor é o valor a associar à chave
      */
-    fun setProperty(propriedade: String, valor: Any? = null){
+    fun setProperty(property: String, valor: Any? = null){
         // transforma o valor num JsonValue
         val valorJson = ProJson().toJson(valor)
         // modifica a propriedade
-        propriedades[propriedade] = valorJson
+        properties[property] = valorJson
     }
 
     /**
      * Remove uma propriedade e o valor associado à mesma do mapa
      *
-     * @param propriedade é a string correspondente à chave
+     * @param property é a string correspondente à chave
      */
-    fun removeProperty(propriedade: String){
-        propriedades.remove(propriedade)
+    fun removeProperty(property: String){
+        properties.remove(property)
     }
 
     /**
@@ -85,15 +85,15 @@ data class JsonObject(
      * @return uma [String] formatada representando um [JsonObject]
      */
     override fun toString(): String {
-        if (tipo.isNullOrEmpty())
-            return propriedades.toList().joinToString(",\n", "{\n", "\n}") {
+        if (type.isNullOrEmpty())
+            return properties.toList().joinToString(",\n", "{\n", "\n}") {
                 "${it.component1()}: ${it.component2()}"
             }
         else if (id.isNullOrEmpty())
-            return "{\n\$id: \"$id\",\n\$type: \"$tipo\",\n" + propriedades.toList().joinToString(",\n", postfix = "\n}") {
+            return "{\n\$id: \"$id\",\n\$type: \"$type\",\n" + properties.toList().joinToString(",\n", postfix = "\n}") {
                 "${it.component1()}: ${it.component2()}"
             }
-        return "{\n\$type: \"$tipo\",\n" + propriedades.toList().joinToString(",\n", postfix = "\n}") {
+        return "{\n\$type: \"$type\",\n" + properties.toList().joinToString(",\n", postfix = "\n}") {
             "${it.component1()}: ${it.component2()}"
         }
     }
