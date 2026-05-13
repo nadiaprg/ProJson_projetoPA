@@ -85,15 +85,19 @@ data class JsonObject(
      * @return uma [String] formatada representando um [JsonObject]
      */
     override fun toString(): String {
-        if (type.isNullOrEmpty())
+        if (type.isNullOrEmpty() && id.isNullOrEmpty())
             return properties.toList().joinToString(",\n", "{\n", "\n}") {
                 "${it.component1()}: ${it.component2()}"
             }
         else if (id.isNullOrEmpty())
-            return "{\n\$id: \"$id\",\n\$type: \"$type\",\n" + properties.toList().joinToString(",\n", postfix = "\n}") {
+            return "{\n\$type: \"$type\",\n" + properties.toList().joinToString(",\n", postfix = "\n}") {
                 "${it.component1()}: ${it.component2()}"
             }
-        return "{\n\$type: \"$type\",\n" + properties.toList().joinToString(",\n", postfix = "\n}") {
+        else if (type.isNullOrEmpty())
+            return "{\n\$id: \"$id\",\n" + properties.toList().joinToString(",\n", postfix = "\n}") {
+                "${it.component1()}: ${it.component2()}"
+            }
+        return "{\n\$id: \"$id\",\n\$type: \"$type\",\n" + properties.toList().joinToString(",\n", postfix = "\n}") {
             "${it.component1()}: ${it.component2()}"
         }
     }

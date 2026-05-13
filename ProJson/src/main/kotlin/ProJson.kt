@@ -66,9 +66,13 @@ class ProJson {
                 val jo = createJsonObject(objet)
 
                 if (!clazz.isData){
-                    val id = createID()
-                    IDs[objet] = id
-                    JsonObject(jo, clazz.simpleName, id)
+                    if (IDs.containsKey(objet))
+                        JsonObject(jo, clazz.simpleName, IDs[objet])
+                    else {
+                        val id = createID()
+                        IDs[objet] = id
+                        JsonObject(jo, clazz.simpleName, id)
+                    }
                 }
                 else{
                     JsonObject(jo, clazz.simpleName)

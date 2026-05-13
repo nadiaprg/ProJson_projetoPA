@@ -499,6 +499,8 @@ class Tests {
             assertNotNull(task, "Não existe uma task associada à referencia")
         }
 
+        print(json_t3.toString())
+
     }
 
     // Testes da anotacao JsonString
