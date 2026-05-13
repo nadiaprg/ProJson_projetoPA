@@ -77,19 +77,40 @@ class Tests {
         val json = ProJson().toJson(d) as JsonObject
         val jsonClass = json::class.simpleName
 
-        assertEquals("{\n\$type: \"Date\",\nday: 31,\nmonth: 4,\nyear: 2026\n}", json.toString(), "Nao esta a criar um JsonObject corretamente")
-        assertEquals("JsonObject", jsonClass, "Criou uma instancia da classe $jsonClass e nao JsonObject")
-        assertEquals("Date", json.getType(), "Tipo tinha de ser Date e nao ${json.getType()}")
+        val esperado = JsonObject(
+            mutableMapOf(
+                "day" to JsonPrimitive(31),
+                "month" to JsonPrimitive(4),
+                "year" to JsonPrimitive(2026)
+            ),
+            "Date"
+        )
+
+        assertEquals(esperado, json, "Nao esta a criar um JsonObject corretamente")
+        assertEquals("Date", json.getType(), "Tipo tinha de ser Date")
     }
     @Test
     fun criarJsonObjectComMap(){
         val d = Date(31, 4, 2026)
         val map = mapOf("K1" to "V1", "K2" to null, "K3" to d)
         val json = ProJson().toJson(map) as JsonObject
-        val jsonClass = json::class.simpleName
+        val esperado = JsonObject(
+            mutableMapOf(
+                "K1" to JsonPrimitive("V1"),
+                "K2" to JsonPrimitive(null),
+                "K3" to JsonObject(
+                    mutableMapOf(
+                        "day" to JsonPrimitive(31),
+                        "month" to JsonPrimitive(4),
+                        "year" to JsonPrimitive(2026)
+                    ),
+                    "Date"
+                )
+            ),
+            null // Mapas não têm tipo guardado na serialização
+        )
 
-        assertEquals("{\nK1: \"V1\",\nK2: null,\nK3: {\n\$type: \"Date\",\nday: 31,\nmonth: 4,\nyear: 2026\n}\n}", json.toString(), "Nao esta a criar um JsonObject corretamente")
-        assertEquals("JsonObject", jsonClass, "Criou uma instancia da classe $jsonClass e nao JsonObject")
+        assertEquals(esperado, json, "Nao esta a criar um JsonObject a partir de Map corretamente")
         assertNull(json.getType(), "Tipo de um Mapa tem de ser null")
     }
 
@@ -100,7 +121,17 @@ class Tests {
 
         json.setProperty("jaPassou", true)
 
-        assertEquals("{\n\$type: \"Date\",\nday: 31,\nmonth: 4,\nyear: 2026,\njaPassou: true\n}", json.toString(), "Nao adicionou a propriedade corretamente")
+        val esperado = JsonObject(
+            mutableMapOf(
+                "day" to JsonPrimitive(31),
+                "month" to JsonPrimitive(4),
+                "year" to JsonPrimitive(2026),
+                "jaPassou" to JsonPrimitive(true)
+            ),
+            "Date"
+        )
+
+        assertEquals(esperado, json, "Nao adicionou a propriedade primitiva corretamente")
     }
 
     @Test
@@ -110,7 +141,19 @@ class Tests {
 
         json.setProperty("tarefas", listOf("tarefa1", "tarefa2"))
 
-        assertEquals("{\n\$type: \"Date\",\nday: 31,\nmonth: 4,\nyear: 2026,\ntarefas: [\"tarefa1\",\"tarefa2\"]\n}", json.toString(), "Nao adicionou a propriedade corretamente")
+        val esperado = JsonObject(
+            mutableMapOf(
+                "day" to JsonPrimitive(31),
+                "month" to JsonPrimitive(4),
+                "year" to JsonPrimitive(2026),
+                "tarefas" to JsonArray(
+                    mutableListOf(JsonPrimitive("tarefa1"), JsonPrimitive("tarefa2"))
+                )
+            ),
+            "Date"
+        )
+
+        assertEquals(esperado, json, "Nao adicionou a propriedade array corretamente")
     }
 
     @Test
@@ -119,7 +162,26 @@ class Tests {
         val json = ProJson().toJson(d) as JsonObject
 
         json.setProperty("alturaDoDia", mapOf("madrugada" to "00 as 6", "manha" to "6 ao 12", "tarde" to "12 as 18", "noite" to "18 a 00"))
-        assertEquals("{\n\$type: \"Date\",\nday: 31,\nmonth: 4,\nyear: 2026,\nalturaDoDia: {\nmadrugada: \"00 as 6\",\nmanha: \"6 ao 12\",\ntarde: \"12 as 18\",\nnoite: \"18 a 00\"\n}\n}", json.toString(), "Nao adicionou a propriedade corretamente")
+
+        val esperado = JsonObject(
+            mutableMapOf(
+                "day" to JsonPrimitive(31),
+                "month" to JsonPrimitive(4),
+                "year" to JsonPrimitive(2026),
+                "alturaDoDia" to JsonObject(
+                    mutableMapOf(
+                        "madrugada" to JsonPrimitive("00 as 6"),
+                        "manha" to JsonPrimitive("6 ao 12"),
+                        "tarde" to JsonPrimitive("12 as 18"),
+                        "noite" to JsonPrimitive("18 a 00")
+                    ),
+                    null // Mapas internos não têm o tipo registado
+                )
+            ),
+            "Date"
+        )
+
+        assertEquals(esperado, json, "Nao adicionou o array mapa corretamente")
     }
 
     @Test
@@ -129,7 +191,15 @@ class Tests {
 
         json.removeProperty("day")
 
-        assertEquals("{\n\$type: \"Date\",\nmonth: 4,\nyear: 2026\n}", json.toString(), "Nao removeu a propriedade")
+        val esperado = JsonObject(
+            mutableMapOf(
+                "month" to JsonPrimitive(4),
+                "year" to JsonPrimitive(2026)
+            ),
+            "Date"
+        )
+
+        assertEquals(esperado, json, "Nao removeu a propriedade")
     }
 
     @Test
@@ -139,7 +209,16 @@ class Tests {
 
         json.removeProperty("jaPassou")
 
-        assertEquals("{\n\$type: \"Date\",\nday: 31,\nmonth: 4,\nyear: 2026\n}", json.toString(), "Nao conseguiu lidar com um user tentar remover uma propriedade que nao existe")
+        val esperado = JsonObject(
+            mutableMapOf(
+                "day" to JsonPrimitive(31),
+                "month" to JsonPrimitive(4),
+                "year" to JsonPrimitive(2026)
+            ),
+            "Date"
+        )
+
+        assertEquals(esperado, json, "Falhou ao lidar com remocao de propriedade inexistente")
     }
 
     @Test
@@ -149,7 +228,16 @@ class Tests {
 
         json.setProperty("month", 8)
 
-        assertEquals("{\n\$type: \"Date\",\nday: 31,\nmonth: 8,\nyear: 2026\n}", json.toString(), "Nao conseguiu alterar a propriedade")
+        val esperado = JsonObject(
+            mutableMapOf(
+                "day" to JsonPrimitive(31),
+                "month" to JsonPrimitive(8),
+                "year" to JsonPrimitive(2026)
+            ),
+            "Date"
+        )
+
+        assertEquals(esperado, json, "Nao conseguiu alterar a propriedade")
     }
 
     //Testes para o JsonPrimitive
@@ -175,7 +263,11 @@ class Tests {
         val list = listOf("a", null, "b")
         val json = ProJson().toJson(list) as JsonArray
 
-        assertEquals("[\"a\",null,\"b\"]", json.toString())
+        val esperado = JsonArray(
+            mutableListOf(JsonPrimitive("a"), JsonPrimitive(null), JsonPrimitive("b"))
+        )
+
+        assertEquals(esperado, json)
     }
 
     @Test
@@ -184,7 +276,11 @@ class Tests {
         val json = ProJson().toJson(list) as JsonArray
         json.add(JsonPrimitive("c"))
 
-        assertEquals("[\"a\",null,\"b\",\"c\"]", json.toString())
+        val esperado = JsonArray(
+            mutableListOf(JsonPrimitive("a"), JsonPrimitive(null), JsonPrimitive("b"), JsonPrimitive("c"))
+        )
+
+        assertEquals(esperado, json)
     }
 
     @Test
@@ -193,7 +289,11 @@ class Tests {
         val json = ProJson().toJson(list) as JsonArray
         json.remove(2)
 
-        assertEquals("[\"a\",null,\"c\"]", json.toString())
+        val esperado = JsonArray(
+            mutableListOf(JsonPrimitive("a"), JsonPrimitive(null), JsonPrimitive("c"))
+        )
+
+        assertEquals(esperado, json)
     }
 
     @Test
@@ -201,7 +301,7 @@ class Tests {
         val list = listOf("a", null, "b", "c")
         val json = ProJson().toJson(list) as JsonArray
 
-        assertEquals("\"b\"", json.get(2).toString())
+        assertEquals(JsonPrimitive("b"), json.get(2))
     }
 
     // Testes da anotacao JsonProperty
@@ -211,9 +311,16 @@ class Tests {
         val json = ProJson().toJson(d) as JsonObject
         val jsonClass = json::class.simpleName
 
-        assertEquals("{\n\$type: \"DateAnotacoes\",\ndia: 31,\nmes: 4,\nano: 2026\n}", json.toString(), "Nao esta a criar um JsonObject corretamente")
-        assertEquals("JsonObject", jsonClass, "Criou uma instancia da classe $jsonClass e nao JsonObject")
-        assertEquals("DateAnotacoes", json.getType(), "Tipo tinha de ser Date e nao ${json.getType()}")
+        val esperado = JsonObject(
+            mutableMapOf(
+                "dia" to JsonPrimitive(31),
+                "mes" to JsonPrimitive(4),
+                "ano" to JsonPrimitive(2026)
+            ),
+            "DateAnotacoes"
+        )
+
+        assertEquals(esperado, json, "Nao esta a criar um JsonObject com anotações corretamente")
     }
 
     @Test
@@ -223,7 +330,16 @@ class Tests {
 
         json.setProperty("mes", 8)
 
-        assertEquals("{\n\$type: \"DateAnotacoes\",\ndia: 31,\nmes: 8,\nano: 2026\n}", json.toString(), "Nao conseguiu alterar a propriedade")
+        val esperado = JsonObject(
+            mutableMapOf(
+                "dia" to JsonPrimitive(31),
+                "mes" to JsonPrimitive(8),
+                "ano" to JsonPrimitive(2026)
+            ),
+            "DateAnotacoes"
+        )
+
+        assertEquals(esperado, json, "Nao conseguiu alterar a propriedade com anotação")
     }
 
     @Test
@@ -233,11 +349,36 @@ class Tests {
 
         json.setProperty("datas", listOf(DateAnotacoes(1, 5, 2026), Date(2, 5, 2026)))
 
-        assertEquals(
-            "{\n\$type: \"DateAnotacoes\",\ndia: 31,\nmes: 4,\nano: 2026,\ndatas: [{\n\$type: \"DateAnotacoes\",\ndia: 1,\nmes: 5,\nano: 2026\n},{\n\$type: \"Date\",\nday: 2,\nmonth: 5,\nyear: 2026\n}]\n}",
-            json.toString(),
-            "Nao adicionou a propriedade corretamente"
+        val esperado = JsonObject(
+            mutableMapOf(
+                "dia" to JsonPrimitive(31),
+                "mes" to JsonPrimitive(4),
+                "ano" to JsonPrimitive(2026),
+                "datas" to JsonArray(
+                    mutableListOf(
+                        JsonObject(
+                            mutableMapOf(
+                                "dia" to JsonPrimitive(1),
+                                "mes" to JsonPrimitive(5),
+                                "ano" to JsonPrimitive(2026)
+                            ),
+                            "DateAnotacoes"
+                        ),
+                        JsonObject(
+                            mutableMapOf(
+                                "day" to JsonPrimitive(2),
+                                "month" to JsonPrimitive(5),
+                                "year" to JsonPrimitive(2026)
+                            ),
+                            "Date"
+                        )
+                    )
+                )
+            ),
+            "DateAnotacoes"
         )
+
+        assertEquals(esperado, json, "Nao adicionou a propriedade corretamente com diferentes tipos de objetos")
     }
 
     //Testes da anotação JsonIgnore
@@ -248,11 +389,12 @@ class Tests {
 
         val esperado = JsonObject(
             mapOf(
-                "deps" to JsonArray(emptyList()),
+                "dependencies" to JsonArray(emptyList()),
                 "desc" to JsonPrimitive("T1")
             ) as MutableMap<String, JsonValue>,
 
             "TaskAnotacoes", // Tipo da classe principal
+            json.getID()
         )
 
         assertEquals(
