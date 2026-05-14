@@ -26,41 +26,77 @@ além de oferecer um sistema de plugins para personalização total.
 
 ##    Funcionalidades
 
+A biblioteca ProJson foi desenvolvida em Kotlin, 
+sem dependências externas, e oferece um conjunto robusto de 
+ferramentas para conversão e manipulação de JSON:
 
-- **Serialização Automática**: Converte primitivos, coleções, mapas e objetos complexos 
-(Data Classes e Classes normais) de forma transparente.
+- **Geração de JSON Standard:** Converte automáticamente objetos 
+Kotlin em memória para uma estrutura JSON e lida com tipos primitivos, 
+coleções (transformadas em $JsonArray$) e mapas ou objetos complexos 
+(transformados em $JsonObject$).
 
-- **Gestão de Referências** (@Reference): Suporta grafos de objetos complexos gerando 
-identificadores únicos ($\$id$) e referências ($\$ref$), garantindo a integridade dos dados na memória.
+- **Gestão de Referencias:** Soluciona o problema da serialização de 
+estruturas de dados complexas onde os nós se referenciam entre si. 
+O gerador atribui automaticamente UUIDs ($\$id$) aos objetos na 
+primeira vez que os encontra e, em instâncias futuras, utiliza 
+apontadores ($\$ref$).
 
-- **Personalização Rápida** (@JsonProperty, @JsonIgnore): Permite renomear chaves ou omitir propriedades facilmente.
+- **Manipulação Dinâmica em Memória:** Após ser instanciado, 
+o modelo JSON pode ser manipulado e percorrido, sendo possível adicionar, 
+modificar ou remover elementos tanto em objetos (através de propriedades) 
+como em arrays (por índice).
 
-- **Mecanismo de Plugins** (@JsonString): Permite formatar classes específicas como Strings usando classes 
-de conversão externas, promovendo código limpo e modular.
+- **Customização via Anotações:**
+   * $@JsonIgnore :$ Omite propriedades específicas para que não sejam 
+  serializadas na representação textual do JSON.
+   * $@JsonProperty(String) :$ Permite personalizar o identificador 
+  (chave) de uma propriedade no JSON resultante.
+   * $@Reference :$ Instrui o gerador a utilizar uma referência em vez 
+  de serializar o objeto ou coleção de forma aninhada.
+   * $@JsonString(Plugin::class) :$ Permite definir uma serialização 
+  textual customizada para uma classe, recorrendo à implementação 
+  da interface JsonPlugin para gerar a representação final do objeto.
+
+- **Geração de Texto JSON Válido:** Converte objetos internos 
+(JsonObject, JsonArray, etc.) numa String de texto final, garantindo que 
+a formatação respeita as regras do JSON.
+
 
 
 ##    Pré-requisitos
 
+Para integrar e utilizar a biblioteca ProJson e necessário que o 
+ambiente de desenvolvimento cumpra os seguintes requisitos:
 
+- **Kotlin SDK:** A biblioteca foi desenvolvida em Kotlin, 
+exigindo assim um ambiente compatível para compilação e execução.
+- **Kotlin Reflection:** O mapeamento dinâmico de propriedades e anotações
+requer o uso de reflexão, sendo necessário garantir que o pacote 
+$kotlin-reflect$ está configurado no ambiente de desenvolvimento.
+
+A biblioteca foi construída de forma totalmente autónoma, não sendo 
+necessária a instalação de bibliotecas de terceiros.
 
 
 ##    Instalação
 
+Para a integração da biblioteca ProJson no projeto é necessário:
 
-Como o projeto está distribuído via ficheiro .jar, a instalação é simples:
+1. **Download da Release:** Aceder à secção de releases do repositório 
+no GitHub e descarregar a versão mais recente do ficheiro $.jar$. 
+2. **Importação para o Projeto:** Criar uma pasta chamada $libs$ na raiz 
+do projeto e colocar lá o ficheiro $.jar$ descarregado.
+3. **Configuração do Gradle:** No ficheiro $build.gradle.kts$, adicionar a 
+referência local do $.jar$ e assegurar a inclusão do pacote $kotlin-reflect$:
 
-1. Vai à página de Releases deste repositório no GitHub.
+```
+dependencies {
+    implementation(files("libs/ProJson-1.0-SNAPSHOT.jar"))
+    implementation(kotlin("reflect"))
+}
+```
 
-2. Faz o download do ficheiro ProJson-1.0-SNAPSHOT.jar.
-
-3. No IntelliJ IDEA / Gradle: Cria uma pasta chamada libs na raiz do teu projeto e coloca lá o .jar.
-
-    - Adiciona a seguinte linha ao teu build.gradle.kts:
-         ```
-        implementation(files("libs/ProJson-1.0-SNAPSHOT.jar"))
-         ```
-    - Sincroniza o Gradle.
-
+4. **Sincronização:** Sincronizar o projeto Gradle para aplicar as alterações.
 
 ##    Tutorial
 
