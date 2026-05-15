@@ -100,13 +100,13 @@ dependencies {
 
 ##    Tutorial
 
-
 Aqui estão os guias passo-a-passo para tirares o máximo partido do ProJson.
 
 1. **Serialização Básica**
    
     Para converter um objeto normal, basta instanciar o motor ProJson e chamar o método toJson.
 
+    _JsonObject_
     ```
     data class Utilizador(val nome: String, val idade: Int)
     
@@ -117,47 +117,115 @@ Aqui estão os guias passo-a-passo para tirares o máximo partido do ProJson.
         val json = motor.toJson(user)
         println(json.toString())
     }
+   // output esperado: { "$type": "Utilizador", "nome": "Maria", "idade": 25 }
     ```
 
-2. **Omitir e Renomear Propriedades**
+   _JsonArray_
+    ```
+    fun main() {
+    val user = Utilizador("Maria", 25)
+    val lista = ["string", null, user]
+    val motor = ProJson()
+    
+        val json = motor.toJson(lista)
+        println(json.toString())
+    }
+   // output esperado: ["string", null, { "$type": "Utilizador", "nome": "Maria", "idade": 25 }]
+    ```
 
-   Usa o @JsonIgnore para esconder dados sensíveis e o @JsonProperty para adaptares o nome da chave no JSON final.
+   _JsonPrimitive_
+    ```
+    fun main() {
+        val string = "string"
+        val motor = ProJson()
+    
+        val json = motor.toJson(string)
+        println(json.toString())
+    }
+   // output esperado: "string"
+    ```
+   
+
+2. **Omitir Propriedades**
+
+   Usa o @JsonIgnore para esconder dados sensíveis
 
     ```
     class Produto(
-    @JsonProperty("identificador")
-    val id: Int,
-    
+        val id: Int,
+        
         val titulo: String,
         
         @JsonIgnore
         val custoProducao: Double
     )
-    
-    // Output esperado: { "$type": "Produto", "identificador": 1, "titulo": "Cadeira" }
+   
+   fun main(){
+        val produto = Produto(1, "Cadeira", 0.5)
+        val motor = ProJson
+   
+        val json = motor.toJson(produto)
+        print(json.toString())
+        
+   }
+    // Output esperado: { "$id": "11fb194e-b75c-4f73-9c10-65df91b81352", $type": "Produto", "id": 1, "titulo": "Cadeira" }
     ```
 
-3. **Trabalhar com Referências (Evitar Duplicados e Ciclos)**
+3. **Omitir e Renomear Propriedades**
 
-   Se tens objetos que partilham a mesma dependência, usa a anotação @Reference. O ProJson vai gerar um UUID para o objeto na primeira vez que o encontrar e, das próximas vezes, vai usar um ponteiro {"$ref": "uuid"}.
+   Usa o @JsonProperty para adaptares o nome da chave no JSON final.
+
+    ```
+    class Produto(
+        @JsonProperty("identificador")
+        val id: Int,
+    
+        val titulo: String,
+
+        val custoProducao: Double
+    )
+   
+    fun main(){
+        val produto = Produto(1, "Cadeira", 0.5)
+        val motor = ProJson
+        
+        val json = motor.toJson(produto)
+        print(json.toString()) 
+    }
+    
+    // Output esperado: { "$id": "11fb194e-b75c-4f73-9c10-65df91b81352", "$type": "Produto", "identificador": 1, "titulo": "Cadeira", "custoProducao": 0.5 }
+    ```
+
+4. **Referências**
+
+   Se queres fazer uma referência a um JsonObject (que não seja um Data Class), usa a anotação @Reference. 
+   O ProJson vai gerar um UUID para o objeto na primeira vez que o encontrar e, das próximas vezes, vai usar um ponteiro {"$ref": "uuid"}.
 
     ```
     class Task(
-    val descricao: String,
-    @Reference val dependencias: List<Task>
+       val descricao: String,
+   
+       @Reference 
+       val dependencias: List<Task>
     )
     
     fun main() {
-    val t1 = Task("Comprar cimento", emptyList())
-    val t2 = Task("Fazer fundação", listOf(t1))
-    val t3 = Task("Levantar paredes", listOf(t1)) // t1 é referenciado novamente
-    
-        val json = ProJson().toJson(listOf(t2, t3))
-        println(json.toString())
+        val t1 = Task("Comprar cimento", emptyList())
+        val t2 = Task("Fazer fundação", listOf(t1))
+        val t3 = Task("Levantar paredes", listOf(t1, t2))
+   
+        val motor = ProJson()
+        
+        val json_t2 = motor.toJson(t2)
+        val json_t3 = motor.toJson(t3)
+        println(json_t2.toString())
+        println(json_t3.toString())
     }
+   // Output esperado t2: { "$id": "9e2e6c64-3236-45b7-8b8a-11271c69e4df", "$type": "Task", "descricao": "Comprar cimento", "dependencias": [{ "$ref": "15fb134e-b75c-4f73-9c60-65df91b81352" }] }
+   // Output esperado t3: { "$id": "d388f116-826f-4751-bdad-fb8cc152b968", "$type": "Task", "descricao": "Levantar paredes", "dependencias": [{ "$ref": "15fb134e-b75c-4f73-9c60-65df91b81352" }, { "$ref": "9e2e6c64-3236-45b7-8b8a-11271c69e4df" }] }
     ```
 
-4. **Usar Plugins Customizados (@JsonString)**
+5. **Usar Plugins Customizados (@JsonString)**
 
    Se quiseres que um objeto inteiro seja representado como uma simples String formatada (como uma Data), cria um plugin implementando a interface JsonPlugin.
 
