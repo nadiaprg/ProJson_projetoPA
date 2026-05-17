@@ -57,7 +57,7 @@ class ProJson {
                     val plugin = clazz.findAnnotation<JsonString>()?.plugin?.createInstance()
 
                     if (plugin != null){
-                        val objString = (plugin as JsonPlugin).transform(objet)
+                        val objString = plugin.transform(objet)
 
                         return JsonPrimitive(objString)
                     }

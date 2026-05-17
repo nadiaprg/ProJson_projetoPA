@@ -404,6 +404,7 @@ class Tests {
     }
 
     // Testes da anotacao Reference
+
     @Test
     fun testarReferenceComObjetosPorCriar() {
         val t1 = TaskAnotacoes("T1"
@@ -501,6 +502,19 @@ class Tests {
 
         print(json_t3.toString())
 
+    }
+
+    @Test
+    fun createSameObject(){
+        val motor = ProJson()
+
+        val t1 = TaskAnotacoes("T1"
+            , Date(30,2,2026), emptyList())
+
+        val json_1 = motor.toJson(t1) as JsonObject
+        val json_2 = motor.toJson(t1) as JsonObject
+
+        assertEquals(json_1.getID(), json_2.getID(), "Os IDs têm de ser iguais")
     }
 
     // Testes da anotacao JsonString

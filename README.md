@@ -171,7 +171,7 @@ Aqui estão os guias passo-a-passo para tirares o máximo partido do ProJson.
     // Output esperado: { "$id": "11fb194e-b75c-4f73-9c10-65df91b81352", $type": "Produto", "id": 1, "titulo": "Cadeira" }
     ```
 
-3. **Omitir e Renomear Propriedades**
+3. **Renomear Propriedades**
 
    Usa o @JsonProperty para adaptares o nome da chave no JSON final.
 
@@ -198,7 +198,7 @@ Aqui estão os guias passo-a-passo para tirares o máximo partido do ProJson.
 
 4. **Referências**
 
-   Se queres fazer uma referência a um JsonObject (que não seja um Data Class), usa a anotação @Reference. 
+   Se queres fazer uma referência a um JsonObject (que não seja uma Data Class), usa a anotação @Reference. 
    O ProJson vai gerar um UUID para o objeto na primeira vez que o encontrar e, das próximas vezes, vai usar um ponteiro {"$ref": "uuid"}.
 
     ```
