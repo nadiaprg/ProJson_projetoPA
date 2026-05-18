@@ -2,16 +2,15 @@
     ProJson_projetoPA 
 
 ![Kotlin](https://img.shields.io/badge/Kotlin-2.2-indigo.svg?logo=kotlin)
-![Versão](https://img.shields.io/badge/Vers%C3%A3o-1.0.0-success.svg)
+![Versão](https://img.shields.io/badge/Vers%C3%A3o-1.0.0-green.svg)
 </h1>
 
 
-O ProJson é uma biblioteca de serialização 
-JSON para Kotlin. Utilizando reflexão, converte instâncias de 
-objetos para valores JSON. 
-Destaca-se por gerir referências entre objetos, 
-prevenindo ciclos infinitos e reduzindo a duplicação de dados, 
-além de oferecer um sistema de plugins para personalização total.
+O **ProJson** é uma biblioteca de serialização 
+JSON desenvolvida para Kotlin. Utilizando reflexão, converte instâncias de 
+objetos para valores JSON de forma automática. 
+Destaca-se por **gerir referências** entre objetos e por 
+oferecer um sistema de **plugins para personalização** total.
 
 
 ##    Indice
@@ -108,6 +107,8 @@ Aqui estão os guias passo-a-passo para tirares o máximo partido do ProJson.
 
     _JsonObject_
     ```
+    Kotlin
+    
     data class Utilizador(val nome: String, val idade: Int)
     
     fun main() {
@@ -117,11 +118,13 @@ Aqui estão os guias passo-a-passo para tirares o máximo partido do ProJson.
         val json = motor.toJson(user)
         println(json.toString())
     }
-   // output esperado: { "$type": "Utilizador", "nome": "Maria", "idade": 25 }
+    // output esperado: { "$type": "Utilizador", "nome": "Maria", "idade": 25 }
     ```
 
    _JsonArray_
     ```
+    Kotlin
+    
     fun main() {
     val user = Utilizador("Maria", 25)
     val lista = ["string", null, user]
@@ -130,11 +133,14 @@ Aqui estão os guias passo-a-passo para tirares o máximo partido do ProJson.
         val json = motor.toJson(lista)
         println(json.toString())
     }
-   // output esperado: ["string", null, { "$type": "Utilizador", "nome": "Maria", "idade": 25 }]
+    
+    // output esperado: ["string", null, { "$type": "Utilizador", "nome": "Maria", "idade": 25 }]
     ```
 
    _JsonPrimitive_
     ```
+    Kotlin
+    
     fun main() {
         val string = "string"
         val motor = ProJson()
@@ -142,7 +148,8 @@ Aqui estão os guias passo-a-passo para tirares o máximo partido do ProJson.
         val json = motor.toJson(string)
         println(json.toString())
     }
-   // output esperado: "string"
+    
+    // output esperado: "string"
     ```
    
 
@@ -151,6 +158,8 @@ Aqui estão os guias passo-a-passo para tirares o máximo partido do ProJson.
    Usa o @JsonIgnore para esconder dados sensíveis
 
     ```
+    Kotlin
+    
     class Produto(
         val id: Int,
         
@@ -159,15 +168,16 @@ Aqui estão os guias passo-a-passo para tirares o máximo partido do ProJson.
         @JsonIgnore
         val custoProducao: Double
     )
-   
-   fun main(){
+    
+    fun main(){
         val produto = Produto(1, "Cadeira", 0.5)
-        val motor = ProJson
-   
+        val motor = ProJson()
+    
         val json = motor.toJson(produto)
         print(json.toString())
         
-   }
+    }
+    
     // Output esperado: { "$id": "11fb194e-b75c-4f73-9c10-65df91b81352", $type": "Produto", "id": 1, "titulo": "Cadeira" }
     ```
 
@@ -176,18 +186,20 @@ Aqui estão os guias passo-a-passo para tirares o máximo partido do ProJson.
    Usa o @JsonProperty para adaptares o nome da chave no JSON final.
 
     ```
+    Kotlin
+   
     class Produto(
         @JsonProperty("identificador")
         val id: Int,
     
         val titulo: String,
-
+    
         val custoProducao: Double
     )
-   
+    
     fun main(){
         val produto = Produto(1, "Cadeira", 0.5)
-        val motor = ProJson
+        val motor = ProJson()
         
         val json = motor.toJson(produto)
         print(json.toString()) 
@@ -202,9 +214,11 @@ Aqui estão os guias passo-a-passo para tirares o máximo partido do ProJson.
    O ProJson vai gerar um UUID para o objeto na primeira vez que o encontrar e, das próximas vezes, vai usar um ponteiro {"$ref": "uuid"}.
 
     ```
+    Kotlin
+    
     class Task(
        val descricao: String,
-   
+    
        @Reference 
        val dependencias: List<Task>
     )
@@ -213,7 +227,7 @@ Aqui estão os guias passo-a-passo para tirares o máximo partido do ProJson.
         val t1 = Task("Comprar cimento", emptyList())
         val t2 = Task("Fazer fundação", listOf(t1))
         val t3 = Task("Levantar paredes", listOf(t1, t2))
-   
+    
         val motor = ProJson()
         
         val json_t2 = motor.toJson(t2)
@@ -221,8 +235,9 @@ Aqui estão os guias passo-a-passo para tirares o máximo partido do ProJson.
         println(json_t2.toString())
         println(json_t3.toString())
     }
-   // Output esperado t2: { "$id": "9e2e6c64-3236-45b7-8b8a-11271c69e4df", "$type": "Task", "descricao": "Comprar cimento", "dependencias": [{ "$ref": "15fb134e-b75c-4f73-9c60-65df91b81352" }] }
-   // Output esperado t3: { "$id": "d388f116-826f-4751-bdad-fb8cc152b968", "$type": "Task", "descricao": "Levantar paredes", "dependencias": [{ "$ref": "15fb134e-b75c-4f73-9c60-65df91b81352" }, { "$ref": "9e2e6c64-3236-45b7-8b8a-11271c69e4df" }] }
+    
+    // Output esperado t2: { "$id": "9e2e6c64-3236-45b7-8b8a-11271c69e4df", "$type": "Task", "descricao": "Comprar cimento", "dependencias": [{ "$ref": "15fb134e-b75c-4f73-9c60-65df91b81352" }] }
+    // Output esperado t3: { "$id": "d388f116-826f-4751-bdad-fb8cc152b968", "$type": "Task", "descricao": "Levantar paredes", "dependencias": [{ "$ref": "15fb134e-b75c-4f73-9c60-65df91b81352" }, { "$ref": "9e2e6c64-3236-45b7-8b8a-11271c69e4df" }] }
     ```
 
 5. **Usar Plugins Customizados (@JsonString)**
@@ -233,6 +248,8 @@ Aqui estão os guias passo-a-passo para tirares o máximo partido do ProJson.
 Passo A: Criar a classe do Plugin (Tem de ter um construtor vazio)
 
 ```
+    Kotlin 
+    
     class FormatarDataPlugin : JsonPlugin {
         override fun transform(obj: Any): String {
             if (obj !is DataCustom) 
@@ -247,6 +264,8 @@ Passo A: Criar a classe do Plugin (Tem de ter um construtor vazio)
 Passo B: Anotar a classe de dados
 
 ```
+    Kotlin
+    
     @JsonString(FormatarDataPlugin::class)
     data class DataCustom(val dia: Int, val mes: Int, val ano: Int)
     
