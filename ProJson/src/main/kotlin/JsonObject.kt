@@ -1,4 +1,4 @@
-package org.example
+package org.proJson
 
 /**
  * Representa um mapa que associa uma String a um [JsonValue]

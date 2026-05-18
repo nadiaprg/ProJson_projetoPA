@@ -1,4 +1,4 @@
-package org.example
+package org.proJson
 
 /**
  * Classe de anotação utilizada para indicar que uma propriedade deve ser serializada como uma referência JSON

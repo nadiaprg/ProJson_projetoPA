@@ -1,4 +1,4 @@
-package org.example
+package org.proJson
 
 /**
  * Permite costumizar os nomes identificadores das propriedades

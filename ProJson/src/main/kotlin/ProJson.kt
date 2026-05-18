@@ -1,4 +1,4 @@
-package org.example
+package org.proJson
 
 import kotlin.reflect.full.findAnnotation
 import kotlin.reflect.full.hasAnnotation

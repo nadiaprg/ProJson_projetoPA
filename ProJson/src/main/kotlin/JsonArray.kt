@@ -1,4 +1,4 @@
-package org.example
+package org.proJson
 
 /**
  * Representa um array Json que funciona como uma lista ordenada de [JsonValue]

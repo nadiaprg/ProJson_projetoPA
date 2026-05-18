@@ -1,4 +1,4 @@
-package org.example
+package org.proJson
 
 /**
  * Interface que define um mecanismo de plugin para personalização da serialização de objetos

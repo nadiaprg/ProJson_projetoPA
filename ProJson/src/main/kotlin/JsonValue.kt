@@ -1,4 +1,4 @@
-package org.example
+package org.proJson
 
 /**
  * Representa a classe base abstrata para todos os tipos de valores JSON.

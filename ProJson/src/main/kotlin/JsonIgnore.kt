@@ -1,4 +1,4 @@
-package org.example
+package org.proJson
 
 /**
  * Premite ignorar certas propriedades
