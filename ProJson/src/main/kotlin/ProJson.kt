@@ -4,7 +4,7 @@ import kotlin.reflect.full.findAnnotation
 import kotlin.reflect.full.hasAnnotation
 import kotlin.reflect.full.memberProperties
 import kotlin.reflect.full.createInstance
-import java.util.UUID;
+import java.util.UUID
 
 /**
  * Classe principal responsável por gerar a estrutura JSON a partir de objetos Kotlin
@@ -63,20 +63,19 @@ class ProJson {
                     }
 
                 }
-                val jo = createJsonObject(objet)
-
+                var id: String? = null
                 if (!clazz.isData){
                     if (IDs.containsKey(objet))
-                        JsonObject(jo, clazz.simpleName, IDs[objet])
+                        id = IDs[objet]
                     else {
-                        val id = createID()
+                        id = createID()
                         IDs[objet] = id
-                        JsonObject(jo, clazz.simpleName, id)
                     }
                 }
-                else{
-                    JsonObject(jo, clazz.simpleName)
-                }
+
+                val jo = createJsonObject(objet)
+
+                JsonObject(jo, clazz.simpleName, id)
             }
         }
     }
@@ -87,8 +86,8 @@ class ProJson {
      * @param objet coleção a ser iterada
      * @return [MutableList] de [JsonValue] resultante da conversão de cada elemento
      */
-    private fun createJsonArray(objet: Collection<*>): MutableList<JsonValue?> {
-        var array = mutableListOf<JsonValue?>()
+    private fun createJsonArray(objet: Collection<*>): MutableList<JsonValue> {
+        var array = mutableListOf<JsonValue>()
         objet.forEach {
             o -> array.add(toJson(o))
         }
@@ -194,7 +193,6 @@ class ProJson {
      * @return o objeto; se o id não existir, devolve null
      */
     fun getObject(id: String): Any? {
-        //return IDs.filter { key -> IDs[key] == id }.keys
         return IDs.entries.find { it.value == id }?.key
     }
 

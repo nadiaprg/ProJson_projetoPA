@@ -20,6 +20,11 @@ oferecer um sistema de **plugins para personalização** total.
 * [Pré-Requisitos](#pré-requisitos)
 * [Instalação](#instalação)
 * [Tutorial](#tutorial)
+    * [Serialização Básica](#serialização-básica)
+    * [Omitir Propriedades](#omitir-propriedades)
+    * [Renomear Propriedades](#renomear-propriedades)
+    * [Referências](#referências)
+    * [Usar Plugins Customizados](#usar-plugins-customizados-jsonstring)
 * [Autores](#autores)
 
 
@@ -101,11 +106,11 @@ dependencies {
 
 Aqui estão os guias passo-a-passo para tirares o máximo partido do ProJson.
 
-1. **Serialização Básica**
+1. ### Serialização Básica
    
     Para converter um objeto normal, basta instanciar o motor ProJson e chamar o método toJson.
 
-    _JsonObject_
+    #### _JsonObject_
     ```
     Kotlin
     
@@ -118,10 +123,19 @@ Aqui estão os guias passo-a-passo para tirares o máximo partido do ProJson.
         val json = motor.toJson(user)
         println(json.toString())
     }
-    // output esperado: { "$type": "Utilizador", "nome": "Maria", "idade": 25 }
     ```
+   
+    Output Esperado
 
-   _JsonArray_
+    ```
+    {
+    $type: "Utilizador",
+    nome: "Maria",
+    idade: 25
+    }
+   ```
+
+   #### _JsonArray_
     ```
     Kotlin
     
@@ -133,11 +147,20 @@ Aqui estão os guias passo-a-passo para tirares o máximo partido do ProJson.
         val json = motor.toJson(lista)
         println(json.toString())
     }
-    
-    // output esperado: ["string", null, { "$type": "Utilizador", "nome": "Maria", "idade": 25 }]
     ```
 
-   _JsonPrimitive_
+   Output Esperado
+
+    ```
+   ["string", null, {
+                     $type: "Utilizador",
+                     nome: "Maria",
+                     idade: 25
+                     }]
+    
+   ```
+
+   #### _JsonPrimitive_
     ```
     Kotlin
     
@@ -148,14 +171,17 @@ Aqui estão os guias passo-a-passo para tirares o máximo partido do ProJson.
         val json = motor.toJson(string)
         println(json.toString())
     }
-    
-    // output esperado: "string"
     ```
    
+   Output Esperado
 
-2. **Omitir Propriedades**
+    ```
+   "string"
+   ```
 
-   Usa o @JsonIgnore para esconder dados sensíveis
+2. ### Omitir Propriedades
+
+   Usa o _@JsonIgnore_ para esconder dados sensíveis
 
     ```
     Kotlin
@@ -177,13 +203,22 @@ Aqui estão os guias passo-a-passo para tirares o máximo partido do ProJson.
         print(json.toString())
         
     }
-    
-    // Output esperado: { "$id": "11fb194e-b75c-4f73-9c10-65df91b81352", $type": "Produto", "id": 1, "titulo": "Cadeira" }
     ```
 
-3. **Renomear Propriedades**
+   Output Esperado
 
-   Usa o @JsonProperty para adaptares o nome da chave no JSON final.
+    ```
+   { 
+   $id: "11fb194e-b75c-4f73-9c10-65df91b81352", 
+   $type: "Produto", 
+   id: 1, 
+   titulo: "Cadeira" 
+   }
+   ```
+
+3. ### Renomear Propriedades
+
+   Usa o _@JsonProperty_ para adaptares o nome da chave no JSON final.
 
     ```
     Kotlin
@@ -204,13 +239,23 @@ Aqui estão os guias passo-a-passo para tirares o máximo partido do ProJson.
         val json = motor.toJson(produto)
         print(json.toString()) 
     }
-    
-    // Output esperado: { "$id": "11fb194e-b75c-4f73-9c10-65df91b81352", "$type": "Produto", "identificador": 1, "titulo": "Cadeira", "custoProducao": 0.5 }
     ```
 
-4. **Referências**
+   Output Esperado
 
-   Se queres fazer uma referência a um JsonObject (que não seja uma Data Class), usa a anotação @Reference. 
+    ```
+   {
+   $id: "11fb194e-b75c-4f73-9c10-65df91b81352", 
+   $type: "Produto", 
+   identificador: 1, 
+   titulo: "Cadeira", 
+   custoProducao: 0.5 
+   }
+   ```
+
+4. ### Referências
+
+   Se queres fazer uma referência a um JsonObject (que não seja uma Data Class), usa a anotação _@Reference_. 
    O ProJson vai gerar um UUID para o objeto na primeira vez que o encontrar e, das próximas vezes, vai usar um ponteiro {"$ref": "uuid"}.
 
     ```
@@ -240,7 +285,34 @@ Aqui estão os guias passo-a-passo para tirares o máximo partido do ProJson.
     // Output esperado t3: { "$id": "d388f116-826f-4751-bdad-fb8cc152b968", "$type": "Task", "descricao": "Levantar paredes", "dependencias": [{ "$ref": "15fb134e-b75c-4f73-9c60-65df91b81352" }, { "$ref": "9e2e6c64-3236-45b7-8b8a-11271c69e4df" }] }
     ```
 
-5. **Usar Plugins Customizados (@JsonString)**
+    Output esperado T2 
+
+    ```
+   { 
+   $id: "9e2e6c64-3236-45b7-8b8a-11271c69e4df", 
+   $type: "Task", 
+   descricao: "Comprar cimento", 
+   dependencias: [{ 
+   $ref: "15fb134e-b75c-4f73-9c60-65df91b81352" 
+   }] 
+   }
+   ```
+
+   Output esperado T3
+
+    ```
+   { 
+   $id: "d388f116-826f-4751-bdad-fb8cc152b968", 
+   $type: "Task", 
+   descricao: "Levantar paredes", 
+   dependencias: [{ 
+   $ref: "15fb134e-b75c-4f73-9c60-65df91b81352" },{ 
+   $ref: "9e2e6c64-3236-45b7-8b8a-11271c69e4df" 
+   }] 
+   }
+   ```
+   
+5. ### Usar Plugins Customizados (@JsonString)
 
    Se quiseres que um objeto inteiro seja representado como uma simples String formatada (como uma Data), cria um plugin implementando a interface JsonPlugin.
 
@@ -270,12 +342,17 @@ Passo B: Anotar a classe de dados
     data class DataCustom(val dia: Int, val mes: Int, val ano: Int)
     
     fun main() {
-    val data = DataCustom(5, 9, 2026)
-    val json = ProJson().toJson(data)
+        val data = DataCustom(5, 9, 2026)
+        val json = ProJson().toJson(data)
     
         println(json.toString()) 
-        // Output esperado: "05/09/2026"
     }
+```
+
+Output Esperado
+
+```
+"05/09/2026"
 ```
 
 ## Autores

@@ -10,7 +10,7 @@ package org.proJson
  */
 
 data class JsonArray(
-    private var list: MutableList<JsonValue?>
+    private var list: MutableList<JsonValue>
 ) : JsonValue() {
 
     /**
@@ -18,7 +18,7 @@ data class JsonArray(
      *
      * @return a lista associado à variável lista
      */
-    fun getList(): MutableList<JsonValue?> {
+    fun getList(): MutableList<JsonValue> {
         return list
     }
 
@@ -46,7 +46,7 @@ data class JsonArray(
      * @param index é o indice do elemento a devolver
      * @return o [JsonValue] correspondente à posição ou null se o elemento for nulo
      */
-    fun get(index: Int): JsonValue?{
+    fun get(index: Int): JsonValue{
         return list[index]
     }
 

@@ -70,7 +70,13 @@ class Tests {
         }
     }
 
+    class NoGrafo(val nome: String) {
+        @Reference
+        var vizinho: List<NoGrafo> = emptyList()
+    }
+
     // JsonObject
+
     @Test
     fun criarJsonObject(){
         val d = Date(31, 4, 2026)
@@ -88,6 +94,9 @@ class Tests {
 
         assertEquals(esperado, json, "Nao esta a criar um JsonObject corretamente")
         assertEquals("Date", json.getType(), "Tipo tinha de ser Date")
+
+        // Verifica o toString
+        assertEquals("{\n\$type: \"Date\",\nday: 31,\nmonth: 4,\nyear: 2026\n}", json.toString(), "Nao esta a criar um JsonObject corretamente")
     }
     @Test
     fun criarJsonObjectComMap(){
@@ -112,6 +121,9 @@ class Tests {
 
         assertEquals(esperado, json, "Nao esta a criar um JsonObject a partir de Map corretamente")
         assertNull(json.getType(), "Tipo de um Mapa tem de ser null")
+
+        // Verifica o toString
+        assertEquals("{\nK1: \"V1\",\nK2: null,\nK3: {\n\$type: \"Date\",\nday: 31,\nmonth: 4,\nyear: 2026\n}\n}", json.toString(), "Nao esta a criar um JsonObject corretamente")
     }
 
     @Test
@@ -241,6 +253,7 @@ class Tests {
     }
 
     //Testes para o JsonPrimitive
+
     @Test
     fun stringPrimitive(){
         assertEquals("\"a\"", JsonPrimitive("a").toString())
@@ -256,8 +269,8 @@ class Tests {
         assertEquals("24", JsonPrimitive(24).toString())
     }
 
-
     //Testes para o JsonArray
+
     @Test
     fun criarJsonArray(){
         val list = listOf("a", null, "b")
@@ -268,6 +281,9 @@ class Tests {
         )
 
         assertEquals(esperado, json)
+
+        // verifica o toString
+        assertEquals("[\"a\",null,\"b\"]", json.toString())
     }
 
     @Test
@@ -305,6 +321,7 @@ class Tests {
     }
 
     // Testes da anotacao JsonProperty
+
     @Test
     fun criarJsonObjectJsonProperty(){
         val d = DateAnotacoes(31, 4, 2026)
@@ -382,6 +399,7 @@ class Tests {
     }
 
     //Testes da anotação JsonIgnore
+
     @Test
     fun testarJsonIgnore() {
         val t = TaskAnotacoes("T1", Date(30,2,2026), emptyList())
@@ -517,6 +535,44 @@ class Tests {
         assertEquals(json_1.getID(), json_2.getID(), "Os IDs têm de ser iguais")
     }
 
+    @Test
+    fun stringWithId(){
+        val t1 = TaskAnotacoes("T1"
+            , Date(30,2,2026), emptyList())
+        val t2 = TaskAnotacoes("T2"
+            , Date(31,4,2026), emptyList())
+        val t3 = TaskAnotacoes("T3"
+            , Date(30,2,2026), listOf(t1, t2))
+
+        val motor = ProJson()
+
+        val json = motor.toJson(t3) as JsonObject
+
+        // IDs para verificar o toString
+        val deps = json.getProperty("dependencies") as JsonArray
+        val refT1 = ((deps.getList()[0] as JsonObject).getProperty("\$ref") as JsonPrimitive).getValue() as String
+        val refT2 = ((deps.getList()[1] as JsonObject).getProperty("\$ref") as JsonPrimitive).getValue() as String
+
+        // String esperada
+        val stringEsperada =
+"""{
+${'$'}id: "${json.getID()}",
+${'$'}type: "TaskAnotacoes",
+dependencies: [{
+${'$'}ref: "$refT1"
+},{
+${'$'}ref: "$refT2"
+}],
+desc: "T3"
+}"""
+
+        assertEquals(
+            stringEsperada,
+            json.toString(),
+            "O toString() não gerou a formatação exata ou os IDs não coincidem."
+        )
+    }
+
     // Testes da anotacao JsonString
 
     @Test
@@ -525,5 +581,36 @@ class Tests {
         val json = ProJson().toJson(d) as JsonPrimitive
 
         assertEquals("\"31/04/2026\"", json.toString(), "não criou corretamente a string, ${json.toString()}")
+    }
+
+    // Teste ProJson
+
+    @Test
+    fun testeCiclosInfinitos() {
+        val noA = NoGrafo("A")
+        val noB = NoGrafo("B")
+
+        noA.vizinho = listOf(noB)
+        noB.vizinho = listOf(noA)
+
+        val proJson = ProJson()
+
+        // Verifica se entra em loop e estoira a stack (StackOverflowError).
+        val resultado = proJson.toJson(noA)
+        val jsonString = resultado.toString()
+
+        // Verificar se sobreviveu e se o output está correto
+        assertNotNull(resultado, "O resultado não pode ser nulo")
+
+        // Verifica se os dados originais foram impressos na primeira vez que foram vistos
+        assertTrue(jsonString.contains("\"A\""), "O JSON deve conter o nome do nó A")
+
+        // Verifica se o mecanismo de referência foi ativado
+        assertTrue(
+            jsonString.contains("\$ref"),
+            "O JSON gerado tem de conter uma chave de referência para os objetos repetidos"
+        )
+
+        println("Teste passou! Output seguro gerado:\n$jsonString")
     }
 }
