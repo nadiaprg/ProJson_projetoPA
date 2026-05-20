@@ -57,15 +57,14 @@ class Tests {
 
     class DateAsText : JsonPlugin {
         override fun transform(obj: Any): String {
-            // 1. Verificação de segurança: garante que o objeto é uma Date
-            // (No teu projeto terás de importar a classe Date correta)
+            // garante que o objeto é uma Date
             if (obj !is DateJsonString) return obj.toString()
 
-            // 2. Formatação da String (ex: adiciona zeros à esquerda para o dia/mês)
+            // Formatação da String
             val diaFormatado = obj.day.toString().padStart(2, '0')
             val mesFormatado = obj.month.toString().padStart(2, '0')
 
-            // 3. Devolve exatamente o formato pedido na imagem: "30/02/2026"
+            // Devolve o formato: "30/02/2026"
             return "$diaFormatado/$mesFormatado/${obj.year}"
         }
     }
